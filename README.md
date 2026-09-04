@@ -72,3 +72,13 @@ npm run dev
 ```
 
 4. Entra en [http://localhost:3000](http://localhost:3000) con el email del admin del seed; el magic link aparece en [http://localhost:8025](http://localhost:8025).
+
+<!-- BEGIN cc:que-se-valora -->
+¡Hola! Aquí te explico qué es lo que miraremos con lupa cuando corrijamos tu proyecto "Saas Cursos".
+
+## 📋 Qué se valora
+
+Cuando revisemos tu proyecto, lo que más pesa es que todo funcione como se espera y que hayas cumplido con todo lo que se pedía en el enunciado. También es importante que tu código esté bien escrito, sea fácil de entender y que la estructura general del proyecto tenga sentido. Le daremos un peso importante al vídeo demo, para ver cómo presentas tu trabajo y cómo funciona en vivo. Finalmente, aunque con un peso menor, nos fijaremos en la documentación que hayas incluido y en las decisiones que tomaste durante el desarrollo, para entender tu proceso.
+
+Recuerda que el enunciado es la guía principal para tu proyecto, y la evaluación no penalizará nada que no se haya pedido explícitamente en él.
+<!-- END cc:que-se-valora -->
