@@ -168,6 +168,8 @@ diagnose:
     - curl -fsSL "https://api.github.com/repos/rustfs/rustfs/releases/latest" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{const j=JSON.parse(d);console.log(j.tag_name);j.assets.forEach(a=>console.log(a.name))})"
     - echo "== start mongod smoke test =="
     - mkdir -p /tmp/mongo-bin /tmp/mongo-data && tar xzf /tmp/mongo.tgz -C /tmp/mongo-bin --strip-components=1
-    - /tmp/mongo-bin/bin/mongod --dbpath /tmp/mongo-data --bind_ip 127.0.0.1 --port 27017 --fork --logpath /tmp/mongod.log
-    - sleep 2; /tmp/mongo-bin/bin/mongod --version; curl -sv telnet://127.0.0.1:27017 2>&1 | head -5 || true
-    - node -e "require('mongodb').MongoClient.connect('mongodb://127.0.0.1:27017').then(c=>{console.log('MONGO_OK');return c.close()}).catch(e=>{console.error('MONGO_FAIL',e.message);process.exit(1)})" || echo NEED_DRIVER
+    - nohup /tmp/mongo-bin/bin/mongod --dbpath /tmp/mongo-data --bind_ip 127.0.0.1 --port 27017 --logpath /tmp/mongod.log > /tmp/mongod.out 2>&1 &
+    - for i in $(seq 1 30); do grep -q "Waiting for connections" /tmp/mongod.log 2>/dev/null && break; sleep 1; done
+    - cat /tmp/mongod.log | tail -20
+    - npm install --no-save mongodb@7 --silent
+    - node -e "require('mongodb').MongoClient.connect('mongodb://127.0.0.1:27017').then(c=>{console.log('MONGO_OK');return c.close()}).catch(e=>{console.error('MONGO_FAIL',e.message);process.exit(1)})"
