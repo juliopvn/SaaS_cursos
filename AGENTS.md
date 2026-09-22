@@ -23,10 +23,10 @@ Next.js 16.2 (App Router, `proxy.ts`) · React 19 · Tailwind CSS 4 (+ `@tailwin
 ```bash
 cp .env.example .env.local     # una vez; nunca se commitea
 npm install
-npm run infra:up               # Mongo 7 + MailHog + RustFS (docker compose) y crea el bucket con CORS
+npm run infra:up               # Mongo 7 + MailHog + RustFS (docker compose)
 npm run seed                   # idempotente (upserts). `npm run seed:reset` borra y recrea: SOLO local
 npm run seed -- --only-admin   # solo el usuario admin (ADMIN_EMAIL)
-npm run dev                    # http://localhost:3000 · MailHog http://localhost:8025 · RustFS consola :9001
+npm run dev                    # (predev crea el bucket y su CORS; manual: npm run storage:init) http://localhost:3000 · MailHog http://localhost:8025 · RustFS consola :9001
 npm run lint && npm run typecheck && npm run test && npm run build
 npm run test:e2e               # suite Playwright completa (levanta su propio servidor en :3100)
 npm run test:e2e:smoke         # solo @smoke

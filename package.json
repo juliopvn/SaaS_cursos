@@ -7,6 +7,7 @@
     "node": ">=22"
   },
   "scripts": {
+    "predev": "tsx --env-file-if-exists=.env.local scripts/init-storage.ts --quick || true",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -15,7 +16,7 @@
     "seed": "tsx --env-file-if-exists=.env.local scripts/seed.ts",
     "seed:reset": "tsx --env-file-if-exists=.env.local scripts/seed.ts --reset",
     "storage:init": "tsx --env-file-if-exists=.env.local scripts/init-storage.ts",
-    "infra:up": "docker compose up -d --wait && npm run storage:init",
+    "infra:up": "docker compose up -d --wait",
     "infra:down": "docker compose down",
     "test": "vitest run",
     "test:e2e": "playwright test",

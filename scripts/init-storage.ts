@@ -1,6 +1,7 @@
 /**
  * Crea el bucket si no existe y aplica CORS para http://localhost:3000.
  * Reintenta mientras RustFS termina de arrancar (docker compose up -d).
+ * `--quick`: pocos reintentos (lo usa `predev`, que no debe bloquear el arranque).
  */
 import { getEnv } from "../lib/env";
 import { applyCors, ensureBucket } from "../lib/storage";
@@ -9,12 +10,13 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 async function main() {
   const env = getEnv();
+  const attempts = process.argv.includes("--quick") ? 2 : 20;
   let result: "created" | "exists" | undefined;
-  for (let attempt = 1; attempt <= 20 && !result; attempt++) {
+  for (let attempt = 1; attempt <= attempts && !result; attempt++) {
     try {
       result = await ensureBucket();
     } catch (error) {
-      if (attempt === 20) throw error;
+      if (attempt === attempts) throw error;
       await sleep(1500);
     }
   }
