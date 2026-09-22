@@ -23,7 +23,7 @@ export const viewport: Viewport = { themeColor: "#f2f4f8", width: "device-width"
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es">
+    <html lang="es" data-scroll-behavior="smooth">
       <body>
         <a href="#contenido" className="skip-link">
           Saltar al contenido

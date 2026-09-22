@@ -116,12 +116,28 @@ magic_tokens { tokenHash, email, next?, expiresAt (TTL), usedAt? }   rate_limits
 - Datos únicos por test (sufijo aleatorio; `createCourseFixture`), sin dependencia de orden. Trazas/vídeo/captura solo en fallo (`playwright-report/`, `test-results/`).
 - Tras `next dev` los tests que interactúan justo tras `goto` pueden adelantarse a la hidratación: usa `expect(...).toPass()` (ver `storage.spec.ts`).
 
-## 9. CI/CD (Bloque B — pendiente)
+## 9. CI/CD
 
-Diseño acordado: GitLab es la fuente de verdad. Flujo `feature/* → Merge Request → main` con *Pipelines must succeed* y sin push directo a `main`;
-pipeline `install → quality → build → e2e → deploy-verify`; *push mirroring* de `main` a GitHub → Vercel (Git integration; **no** desplegar con Vercel CLI);
-`deploy-verify` sondea `/api/health` hasta que `commit` == `$CI_COMMIT_SHA` y ejecuta `@smoke` contra `PROD_URL`. Rollback: Vercel *Instant Rollback* y revertir el commit.
-Este apartado se actualizará con el estado real al completar P2–P6.
+**Flujo:** `feature/* → Merge Request → main`. Activa en GitLab (Settings → Merge requests) *"Pipelines must succeed"*
+y prohíbe el push directo a `main` (Settings → Repository → Protected branches: solo Maintainers, o nadie, puede
+hacer push; los merges requieren MR) — así solo código con CI en verde llega al mirror de GitHub y a Vercel.
+
+**Pipeline** (`.gitlab-ci.yml`), etapas `install → quality → build → e2e → deploy-verify`:
+
+- `quality`: `lint`, `typecheck`, `unit-test` (Vitest) en paralelo; `audit` (`npm audit --omit=dev --audit-level=high`) con `allow_failure: true`.
+- `build`: `npm run build`; sube `.next/` como artefacto para el job `e2e`.
+- `e2e`: imagen `mcr.microsoft.com/playwright:v1.63.0-noble` (misma versión que `@playwright/test`); `services` `mongo:7`, `mailhog/mailhog`, `rustfs/rustfs:latest` (alias `mongo`/`mailhog`/`rustfs`); corre `npm run test:e2e` completo (incluye `@storage`) contra ese `.next` con `next start`; sube `playwright-report/` y `test-results/` como artefactos (`when: always`).
+- `deploy-verify` (**solo en `main`**): sondea `GET $PROD_URL/api/health` hasta que `commit === $CI_COMMIT_SHA` y `db === "ok"` (el mirror conserva el SHA), luego corre el proyecto `smoke` de Playwright contra `E2E_BASE_URL=$PROD_URL`. `PROD_URL` es una variable de CI **no secreta** (Settings → CI/CD → Variables), p. ej. `https://cursos.jpavon-tech.com`.
+- Todas las credenciales del pipeline son **ficticias** (Mongo/MailHog/RustFS efímeros de CI); no hace falta ningún secreto real para que pase.
+- Si `deploy-verify` falla, el pipeline de `main` queda en rojo y GitLab lo notifica. **Rollback:** en Vercel → *Instant Rollback* al deploy anterior, y después revertir el commit correspondiente en GitLab (`git revert`) para que el historial no vuelva a desplegar el commit roto.
+
+**Mirror y despliegue:** GitLab (fuente de verdad) → *push mirroring* (solo `main`) → GitHub → Vercel (Git integration, Node 22, rama de producción `main`). **No se despliega con Vercel CLI desde el pipeline.** Vercel construye en cada push al mirror sin conocer el estado del pipeline de GitLab: la única garantía de calidad es la protección de `main` de más arriba.
+
+**Aviso importante sobre `next.config.ts`:** las cabeceras de seguridad y la CSP se aplican en `proxy.ts` (por
+petición), no con `headers()` en `next.config.ts`. `headers()` se hornea en el build; si `S3_ENDPOINT` no
+estuviera presente en ese momento (o cambiase después sin rebuild), la política quedaría desactualizada y
+rompería en silencio las subidas a R2/RustFS. `proxy.ts` lee `getEnv()` en cada petición, así que siempre
+refleja la configuración real del entorno en ejecución.
 
 ## 10. Entornos y variables
 
