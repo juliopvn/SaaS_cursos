@@ -154,3 +154,16 @@ deploy-verify:
     paths:
       - playwright-report/
     expire_in: 7 days
+
+diagnose:
+  stage: quality
+  script:
+    - echo "== uname =="; uname -a
+    - echo "== node/npm =="; node -v; npm -v
+    - echo "== docker =="; (docker version && echo DOCKER_OK) || echo NO_DOCKER
+    - echo "== docker compose =="; (docker compose version) || echo NO_COMPOSE
+    - echo "== whoami/id =="; whoami; id
+    - echo "== mongod =="; (which mongod && mongod --version) || echo NO_MONGOD
+    - echo "== npx playwright --version =="; npx --yes playwright@1.63.0 --version || true
+    - echo "== free disk =="; df -h . || true
+    - echo "== free mem =="; free -h || true
