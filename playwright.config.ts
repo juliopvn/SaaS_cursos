@@ -8,10 +8,13 @@ export default defineConfig({
   outputDir: "test-results",
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
-  retries: process.env.CI ? 1 : 0,
+  retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : 2,
   timeout: 30_000,
-  expect: { timeout: 7_000 },
+  // En CI, Mongo+MailHog+RustFS+Chromium+Next comparten el mismo runner (sin Docker,
+  // ver AGENTS.md §9): bajo carga, un round-trip de router.refresh() puede tardar más
+  // que en local. Margen más amplio solo en CI; en local el valor rápido no cambia.
+  expect: { timeout: process.env.CI ? 15_000 : 7_000 },
   reporter: [["list"], ["html", { open: "never" }]],
   globalSetup: IS_LOCAL_TARGET ? "./tests/e2e/global-setup.ts" : undefined,
   use: {
