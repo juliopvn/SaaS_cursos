@@ -105,13 +105,6 @@ e2e:
     # Runner de tipo "shell" (sin Docker): no hay `services:`. Los tres servicios se
     # autoalojan como binarios estáticos descargados en el propio job (ver más abajo).
     PLAYWRIGHT_BROWSERS_PATH: "$CI_PROJECT_DIR/.playwright-browsers"
-    RUSTFS_ACCESS_KEY: rustfsadmin
-    RUSTFS_SECRET_KEY: rustfsadmin
-    # Alias/compat de algunas versiones del binario (ver entrypoint.sh de la imagen oficial).
-    RUSTFS_ROOT_USER: rustfsadmin
-    RUSTFS_ROOT_PASSWORD: rustfsadmin
-    RUSTFS_ADDRESS: "127.0.0.1:9000"
-    RUSTFS_CONSOLE_ENABLE: "false"
   script:
     - npx playwright install --with-deps chromium
     - |
@@ -132,8 +125,12 @@ e2e:
       python3 -m zipfile -e /tmp/rustfs.zip /tmp/rustfs-bin/
       RUSTFS_BIN=$(find /tmp/rustfs-bin -type f -name rustfs)
       chmod +x "$RUSTFS_BIN"
-      "$RUSTFS_BIN" --version || true
-      env | grep -i rustfs || true
+      # Esta instancia de GitLab define RUSTFS_ACCESS_KEY=minioadmin como variable de
+      # CI a nivel de instancia (no del proyecto): las de la UI ganan a las de este
+      # archivo, así que se sobrescribe aquí, en el propio script, para que valga.
+      export RUSTFS_ACCESS_KEY=rustfsadmin RUSTFS_SECRET_KEY=rustfsadmin
+      export RUSTFS_ROOT_USER=rustfsadmin RUSTFS_ROOT_PASSWORD=rustfsadmin
+      export RUSTFS_ADDRESS=127.0.0.1:9000 RUSTFS_CONSOLE_ENABLE=false
       nohup "$RUSTFS_BIN" /tmp/rustfs-data >/tmp/rustfs.log 2>&1 &
     - |
       echo "--- esperando a que los tres respondan ---"
