@@ -298,8 +298,9 @@
     background: var(--color-ink);
     border-color: var(--color-ink);
   }
-  .route-item[data-draft="true"]::before {
-    border-style: dashed;
+  /* Filas de acción (añadir…): cuelgan de la línea sin ser parada. */
+  .route-action::before {
+    display: none;
   }
 
   /* --- Markdown ---------------------------------------------------------- */
@@ -385,5 +386,20 @@
   }
   .skip-link:focus {
     top: 1rem;
+  }
+}
+
+@layer components {
+  dialog.dialog {
+    margin: auto;
+    width: min(28rem, calc(100vw - 2rem));
+    padding: 1.5rem;
+    border: 2px solid var(--color-ink);
+    border-radius: var(--radius-sign);
+    background: var(--color-surface);
+    color: var(--color-ink);
+  }
+  dialog.dialog::backdrop {
+    background: rgb(12 18 48 / 0.55);
   }
 }
