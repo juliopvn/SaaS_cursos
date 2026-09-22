@@ -158,12 +158,16 @@ deploy-verify:
 diagnose:
   stage: quality
   script:
-    - echo "== uname =="; uname -a
-    - echo "== node/npm =="; node -v; npm -v
-    - echo "== docker =="; (docker version && echo DOCKER_OK) || echo NO_DOCKER
-    - echo "== docker compose =="; (docker compose version) || echo NO_COMPOSE
-    - echo "== whoami/id =="; whoami; id
-    - echo "== mongod =="; (which mongod && mongod --version) || echo NO_MONGOD
-    - echo "== npx playwright --version =="; npx --yes playwright@1.63.0 --version || true
-    - echo "== free disk =="; df -h . || true
-    - echo "== free mem =="; free -h || true
+    - cat /etc/os-release || true
+    - echo "== curl/wget/tar =="; curl --version | head -1; wget --version | head -1; tar --version | head -1
+    - echo "== mongodb download test =="
+    - curl -fsSL -o /tmp/mongo.tgz "https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-ubuntu2204-7.0.14.tgz" && tar tzf /tmp/mongo.tgz | grep bin/mongod
+    - echo "== mailhog download test =="
+    - curl -fsSL -o /tmp/mailhog "https://github.com/mailhog/MailHog/releases/download/v1.0.1/MailHog_linux_amd64" && chmod +x /tmp/mailhog && /tmp/mailhog --version || true
+    - echo "== rustfs release listing =="
+    - curl -fsSL "https://api.github.com/repos/rustfs/rustfs/releases/latest" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{const j=JSON.parse(d);console.log(j.tag_name);j.assets.forEach(a=>console.log(a.name))})"
+    - echo "== start mongod smoke test =="
+    - mkdir -p /tmp/mongo-bin /tmp/mongo-data && tar xzf /tmp/mongo.tgz -C /tmp/mongo-bin --strip-components=1
+    - /tmp/mongo-bin/bin/mongod --dbpath /tmp/mongo-data --bind_ip 127.0.0.1 --port 27017 --fork --logpath /tmp/mongod.log
+    - sleep 2; /tmp/mongo-bin/bin/mongod --version; curl -sv telnet://127.0.0.1:27017 2>&1 | head -5 || true
+    - node -e "require('mongodb').MongoClient.connect('mongodb://127.0.0.1:27017').then(c=>{console.log('MONGO_OK');return c.close()}).catch(e=>{console.error('MONGO_FAIL',e.message);process.exit(1)})" || echo NEED_DRIVER
