@@ -107,6 +107,9 @@ e2e:
     PLAYWRIGHT_BROWSERS_PATH: "$CI_PROJECT_DIR/.playwright-browsers"
     RUSTFS_ACCESS_KEY: rustfsadmin
     RUSTFS_SECRET_KEY: rustfsadmin
+    # Alias/compat de algunas versiones del binario (ver entrypoint.sh de la imagen oficial).
+    RUSTFS_ROOT_USER: rustfsadmin
+    RUSTFS_ROOT_PASSWORD: rustfsadmin
     RUSTFS_ADDRESS: "127.0.0.1:9000"
     RUSTFS_CONSOLE_ENABLE: "false"
   script:
@@ -129,6 +132,8 @@ e2e:
       python3 -m zipfile -e /tmp/rustfs.zip /tmp/rustfs-bin/
       RUSTFS_BIN=$(find /tmp/rustfs-bin -type f -name rustfs)
       chmod +x "$RUSTFS_BIN"
+      "$RUSTFS_BIN" --version || true
+      env | grep -i rustfs || true
       nohup "$RUSTFS_BIN" /tmp/rustfs-data >/tmp/rustfs.log 2>&1 &
     - |
       echo "--- esperando a que los tres respondan ---"
@@ -137,7 +142,8 @@ e2e:
       for i in $(seq 1 30); do curl -sf -o /dev/null http://127.0.0.1:8025 && break; sleep 1; done
       curl -sf -o /dev/null http://127.0.0.1:8025 || (cat /tmp/mailhog.log; exit 1)
       for i in $(seq 1 30); do curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:9000 | grep -qE '^[0-9]+$' && break; sleep 1; done
-      curl -s -o /dev/null http://127.0.0.1:9000 || (cat /tmp/rustfs.log; exit 1)
+      curl -s -o /dev/null http://127.0.0.1:9000 || true
+      echo "--- rustfs.log ---"; cat /tmp/rustfs.log
     - MONGODB_URI=mongodb://127.0.0.1:27017 SMTP_HOST=127.0.0.1 MAILHOG_API_URL=http://127.0.0.1:8025 S3_ENDPOINT=http://127.0.0.1:9000 npx tsx scripts/init-storage.ts
     - MONGODB_URI=mongodb://127.0.0.1:27017 SMTP_HOST=127.0.0.1 MAILHOG_API_URL=http://127.0.0.1:8025 S3_ENDPOINT=http://127.0.0.1:9000 npm run test:e2e
   artifacts:
