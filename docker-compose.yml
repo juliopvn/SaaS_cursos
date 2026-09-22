@@ -1,0 +1,44 @@
+name: saas-cursos
+# Infraestructura local: MongoDB 7, MailHog (magic links) y RustFS (S3).
+# Arranque: `npm run infra:up` (levanta los servicios y crea el bucket).
+services:
+  mongo:
+    image: mongo:7
+    container_name: cursos-mongo
+    ports:
+      # Si el 27017 está ocupado en tu máquina: MONGO_PORT=27018 npm run infra:up
+      - "${MONGO_PORT:-27017}:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  mailhog:
+    image: mailhog/mailhog
+    platform: linux/amd64 # Apple Silicon: no hay imagen arm64 oficial
+    container_name: cursos-mailhog
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # UI y API HTTP
+
+  rustfs:
+    image: rustfs/rustfs:latest
+    container_name: cursos-rustfs
+    ports:
+      - "9000:9000" # API S3
+      - "9001:9001" # Consola web
+    environment:
+      RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY:-rustfsadmin}
+      RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY:-rustfsadmin}
+      RUSTFS_ADDRESS: 0.0.0.0:9000
+      RUSTFS_CONSOLE_ADDRESS: 0.0.0.0:9001
+      RUSTFS_CONSOLE_ENABLE: "true"
+    volumes:
+      - rustfs-data:/data
+
+volumes:
+  mongo-data:
+  rustfs-data:
