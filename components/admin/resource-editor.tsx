@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { FileUploader } from "@/components/admin/file-uploader";
 import { ConfirmButton } from "@/components/confirm-button";
 import { Markdown } from "@/components/markdown";
 import { api, errorMessage } from "@/lib/client/api";
@@ -97,6 +98,9 @@ export function ResourceEditor({
             placeholder={"# Título\n\nEscribe en Markdown. Para un vídeo:\n<iframe src=\"https://www.youtube.com/embed/ID\" title=\"Vídeo\"></iframe>"}
           />
           <p className="field-hint">Admite tablas, listas de tareas, código y vídeos de YouTube embebidos.</p>
+          <div className="mt-4">
+            <FileUploader onInsert={(snippet) => setContent((prev) => `${prev}${prev && !prev.endsWith("\n") ? "\n\n" : ""}${snippet}\n`)} />
+          </div>
         </div>
         <div className={view === "write" ? "hidden lg:block" : ""}>
           <p className="field-label" id="preview-label">

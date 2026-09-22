@@ -45,9 +45,7 @@ export const SEED_COURSES: SeedCourse[] = [
         resources: [
           {
             title: "Qué problema resuelve TypeScript",
-            content: `# Qué problema resuelve TypeScript
-
-JavaScript te deja pasar un número donde esperabas un texto y no protesta hasta que el programa ya está en marcha. TypeScript añade **tipos estáticos**: el editor te avisa *mientras escribes*.
+            content: `JavaScript te deja pasar un número donde esperabas un texto y no protesta hasta que el programa ya está en marcha. TypeScript añade **tipos estáticos**: el editor te avisa *mientras escribes*.
 
 ## Míralo en 100 segundos
 
@@ -64,9 +62,7 @@ ${video(YOUTUBE.typescript, "TypeScript en 100 segundos")}
           },
           {
             title: "Instalación y primer archivo",
-            content: `# Instalación y primer archivo
-
-## 1. Instala el compilador
+            content: `## 1. Instala el compilador
 
 \`\`\`bash
 npm install --save-dev typescript
@@ -100,9 +96,7 @@ Descarga la chuleta con los comandos más usados: [Chuleta de TypeScript (PDF)](
         resources: [
           {
             title: "Tipos básicos y uniones",
-            content: `# Tipos básicos y uniones
-
-| Tipo | Ejemplo | Cuándo usarlo |
+            content: `| Tipo | Ejemplo | Cuándo usarlo |
 |---|---|---|
 | \`string\` | \`"hola"\` | Texto |
 | \`number\` | \`42\` | Enteros y decimales |
@@ -127,9 +121,7 @@ function saludo(rol: Rol) {
           },
           {
             title: "Interfaces y genéricos",
-            content: `# Interfaces y genéricos
-
-## Interfaces
+            content: `## Interfaces
 
 \`\`\`ts
 interface Curso {
@@ -162,9 +154,7 @@ const c = primero<Curso>([]); // Curso | undefined
         resources: [
           {
             title: "Configuración estricta y checklist",
-            content: `# Configuración estricta y checklist
-
-Activa \`strict\` desde el primer día:
+            content: `Activa \`strict\` desde el primer día:
 
 \`\`\`json
 { "compilerOptions": { "strict": true, "noUncheckedIndexedAccess": true } }
@@ -195,9 +185,7 @@ Material extra: [Guía de referencia (PDF)](${PDF_URL}).
         resources: [
           {
             title: "Recursos, verbos y URLs",
-            content: `# Recursos, verbos y URLs
-
-${video(YOUTUBE.rest, "Qué es una API REST")}
+            content: `${video(YOUTUBE.rest, "Qué es una API REST")}
 
 ## Cada verbo tiene un significado
 
@@ -213,9 +201,7 @@ Nombra **recursos** (sustantivos en plural), no acciones: \`/courses\`, no \`/ge
           },
           {
             title: "Códigos de estado y errores",
-            content: `# Códigos de estado y errores
-
-- **200** OK · **201** creado · **204** sin contenido
+            content: `- **200** OK · **201** creado · **204** sin contenido
 - **400** entrada inválida · **401** sin sesión · **403** sin permiso · **404** no existe · **409** conflicto
 
 ## Un formato de error consistente
@@ -239,9 +225,7 @@ Mismo formato en todos los endpoints: quien consume la API escribe un único man
         resources: [
           {
             title: "Autenticación y autorización",
-            content: `# Autenticación y autorización
-
-**Autenticación** responde *¿quién eres?*. **Autorización** responde *¿qué puedes hacer?*
+            content: `**Autenticación** responde *¿quién eres?*. **Autorización** responde *¿qué puedes hacer?*
 
 1. Identifica al usuario (sesión firmada, magic link…).
 2. Guarda su rol en la sesión.
@@ -254,9 +238,7 @@ Lecturas recomendadas: [Resumen de seguridad (PDF)](${PDF_URL}).
           },
           {
             title: "Validación de entradas",
-            content: `# Validación de entradas
-
-Valida en el borde: cada endpoint rechaza lo que no encaja con su contrato.
+            content: `Valida en el borde: cada endpoint rechaza lo que no encaja con su contrato.
 
 \`\`\`ts
 const CourseInput = z.object({
@@ -284,9 +266,7 @@ const CourseInput = z.object({
         resources: [
           {
             title: "Qué es un contenedor",
-            content: `# Qué es un contenedor
-
-${video(YOUTUBE.docker, "Docker en 100 segundos")}
+            content: `${video(YOUTUBE.docker, "Docker en 100 segundos")}
 
 Un contenedor empaqueta tu aplicación con sus dependencias y corre igual en cualquier máquina.
 `,
@@ -298,9 +278,7 @@ Un contenedor empaqueta tu aplicación con sus dependencias y corre igual en cua
         resources: [
           {
             title: "Tu primer docker-compose.yml",
-            content: `# Tu primer docker-compose.yml
-
-\`\`\`yaml
+            content: `\`\`\`yaml
 services:
   mongo:
     image: mongo:7
