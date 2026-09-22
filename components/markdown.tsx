@@ -2,11 +2,11 @@ import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import rehypeSanitize from "rehype-sanitize";
 import remarkGfm from "remark-gfm";
-import { markdownSchema } from "@/lib/markdown-schema";
+import { markdownSchema, rehypeDropEmptyIframes } from "@/lib/markdown-schema";
 
 const REMARK_PLUGINS = [remarkGfm];
 // El orden importa: primero se interpreta el HTML embebido y después se sanitiza.
-const REHYPE_PLUGINS = [rehypeRaw, [rehypeSanitize, markdownSchema]] as never;
+const REHYPE_PLUGINS = [rehypeRaw, [rehypeSanitize, markdownSchema], rehypeDropEmptyIframes] as never;
 
 /**
  * Render de markdown seguro, compartido por la vista previa del editor y el área del alumno.

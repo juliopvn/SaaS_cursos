@@ -20,7 +20,7 @@ async function main() {
   }
   console.log(`[storage] bucket "${env.S3_BUCKET}": ${result}`);
 
-  const origins = [...new Set(["http://localhost:3000", "http://127.0.0.1:3000", new URL(env.APP_URL).origin])];
+  const origins = [...new Set(["http://localhost:3000", "http://127.0.0.1:3000", new URL(env.APP_URL).origin, ...(process.env.E2E_BASE_URL ? [new URL(process.env.E2E_BASE_URL).origin] : [])])];
   try {
     await applyCors(origins);
     console.log(`[storage] CORS aplicado para ${origins.join(", ")}`);

@@ -25,3 +25,23 @@ export const markdownSchema: Options = {
     ],
   },
 };
+
+interface HastNode {
+  type: string;
+  tagName?: string;
+  properties?: Record<string, unknown>;
+  children?: HastNode[];
+}
+
+/**
+ * Tras sanitizar, un <iframe> cuyo `src` no era de YouTube se queda sin `src`.
+ * Lo eliminamos del árbol para que no quede ningún marco vacío.
+ */
+export function rehypeDropEmptyIframes() {
+  const prune = (node: HastNode) => {
+    if (!node.children) return;
+    node.children = node.children.filter((c) => !(c.type === "element" && c.tagName === "iframe" && !c.properties?.src));
+    node.children.forEach(prune);
+  };
+  return (tree: HastNode) => prune(tree);
+}

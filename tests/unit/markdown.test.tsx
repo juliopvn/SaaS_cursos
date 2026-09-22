@@ -61,6 +61,7 @@ describe("<Markdown /> — sanitización", () => {
   ])("bloquea el iframe con src no permitido: %s", (src) => {
     const html = render(`<iframe src="${src}"></iframe>`);
     expect(html).not.toContain(src);
+    expect(html).not.toContain("<iframe"); // sin marcos vacíos
   });
 
   it("bloquea otros elementos activos (object, embed, form, style)", () => {
