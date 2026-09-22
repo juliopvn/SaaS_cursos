@@ -1,1 +1,389 @@
 @import "tailwindcss";
+@import "@fontsource-variable/archivo/wdth.css";
+@import "@fontsource-variable/jetbrains-mono";
+@plugin "@tailwindcss/typography";
+
+/*
+ * Sistema visual: señalética de transporte.
+ * Un curso es una línea; las secciones son tramos y los recursos, paradas numeradas.
+ * El cobalto es el color de la línea; el ámbar marca la parada actual y solo eso.
+ */
+@theme {
+  --color-paper: #f2f4f8;
+  --color-surface: #ffffff;
+  --color-ink: #0c1230;
+  --color-ink-soft: #3d4668;
+  --color-muted: #5b6482;
+  --color-rule: #d5dae6;
+  --color-line: #2b3ff0;
+  --color-line-deep: #1a2bc4;
+  --color-line-tint: #e8ebff;
+  --color-signal: #ffc21a;
+  --color-alert: #b42323;
+  --color-alert-tint: #fdecec;
+  --color-ok: #0b6b4a;
+  --color-ok-tint: #e3f5ec;
+
+  --font-sans: "Archivo Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, monospace;
+
+  --radius-sign: 4px;
+}
+
+@layer base {
+  html {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+  body {
+    min-height: 100dvh;
+    background: var(--color-paper);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-line);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+  ::selection {
+    background: var(--color-signal);
+    color: var(--color-ink);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* --- Tipografía ------------------------------------------------------- */
+  .display {
+    font-stretch: 125%;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 0.98;
+    font-size: clamp(2.6rem, 7vw, 5rem);
+    text-wrap: balance;
+  }
+  .heading {
+    font-stretch: 115%;
+    font-weight: 750;
+    letter-spacing: -0.015em;
+    line-height: 1.08;
+    text-wrap: balance;
+  }
+  .label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .stop-number {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-line);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* --- Botones ---------------------------------------------------------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0.5rem 1.125rem;
+    border: 2px solid transparent;
+    border-radius: var(--radius-sign);
+    font-weight: 700;
+    font-size: 0.9375rem;
+    line-height: 1.2;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 120ms, border-color 120ms, color 120ms;
+  }
+  .btn:disabled,
+  .btn[aria-disabled="true"] {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .btn-primary {
+    background: var(--color-line);
+    color: #fff;
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: var(--color-line-deep);
+  }
+  .btn-secondary {
+    background: var(--color-surface);
+    color: var(--color-ink);
+    border-color: var(--color-ink);
+  }
+  .btn-secondary:hover:not(:disabled) {
+    background: var(--color-ink);
+    color: #fff;
+  }
+  .btn-quiet {
+    background: transparent;
+    color: var(--color-ink-soft);
+    border-color: var(--color-rule);
+  }
+  .btn-quiet:hover:not(:disabled) {
+    border-color: var(--color-ink);
+    color: var(--color-ink);
+  }
+  .btn-danger {
+    background: var(--color-surface);
+    color: var(--color-alert);
+    border-color: var(--color-alert);
+  }
+  .btn-danger:hover:not(:disabled) {
+    background: var(--color-alert);
+    color: #fff;
+  }
+  .btn-sm {
+    min-height: 2.25rem;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+  }
+  .btn-icon {
+    min-height: 2.25rem;
+    min-width: 2.25rem;
+    padding: 0.25rem;
+  }
+
+  /* --- Formularios ------------------------------------------------------ */
+  .field {
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--color-surface);
+    border: 2px solid var(--color-rule);
+    border-radius: var(--radius-sign);
+    color: var(--color-ink);
+    font: inherit;
+    transition: border-color 120ms;
+  }
+  .field:hover {
+    border-color: var(--color-muted);
+  }
+  .field:focus-visible {
+    border-color: var(--color-line);
+    outline-offset: 0;
+  }
+  .field[aria-invalid="true"] {
+    border-color: var(--color-alert);
+  }
+  .field-label {
+    display: block;
+    margin-bottom: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+  }
+  .field-hint {
+    margin-top: 0.375rem;
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+  }
+  .field-error {
+    margin-top: 0.375rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-alert);
+  }
+
+  /* --- Superficies ------------------------------------------------------ */
+  .panel {
+    background: var(--color-surface);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-sign);
+  }
+  .notice {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sign);
+    border-left: 4px solid var(--color-line);
+    background: var(--color-line-tint);
+    font-size: 0.9375rem;
+  }
+  .notice-error {
+    border-left-color: var(--color-alert);
+    background: var(--color-alert-tint);
+    color: var(--color-alert);
+  }
+  .notice-ok {
+    border-left-color: var(--color-ok);
+    background: var(--color-ok-tint);
+    color: var(--color-ok);
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border: 1px solid var(--color-rule);
+    color: var(--color-muted);
+    background: var(--color-surface);
+  }
+  .badge-live {
+    color: var(--color-ok);
+    border-color: var(--color-ok);
+    background: var(--color-ok-tint);
+  }
+
+  /* --- Ruta: la firma visual ------------------------------------------- */
+  .route {
+    --dot: 1.625rem;
+    --rail: 0.375rem;
+    position: relative;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  /* Raíl continuo que une todas las paradas. */
+  .route::before {
+    content: "";
+    position: absolute;
+    top: 1.25rem;
+    bottom: 1.25rem;
+    left: calc((var(--dot) - var(--rail)) / 2);
+    width: var(--rail);
+    background: var(--color-line);
+    border-radius: 999px;
+  }
+  .route-item {
+    position: relative;
+    padding: 0.375rem 0 0.375rem calc(var(--dot) + 1rem);
+    min-height: 2.75rem;
+  }
+  .route-item::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.75rem;
+    width: var(--dot);
+    height: var(--dot);
+    box-sizing: border-box;
+    border-radius: 50%;
+    background: var(--color-surface);
+    border: 0.3125rem solid var(--color-line);
+  }
+  .route-item[data-current="true"]::before {
+    background: var(--color-signal);
+    border-color: var(--color-ink);
+  }
+  /* Inicio de tramo (sección): terminal cuadrada, más grande. */
+  .route-terminal::before {
+    border-radius: 0.3rem;
+    background: var(--color-ink);
+    border-color: var(--color-ink);
+  }
+  .route-item[data-draft="true"]::before {
+    border-style: dashed;
+  }
+
+  /* --- Markdown ---------------------------------------------------------- */
+  .markdown {
+    --tw-prose-body: var(--color-ink-soft);
+    --tw-prose-headings: var(--color-ink);
+    --tw-prose-lead: var(--color-ink-soft);
+    --tw-prose-links: var(--color-line);
+    --tw-prose-bold: var(--color-ink);
+    --tw-prose-counters: var(--color-muted);
+    --tw-prose-bullets: var(--color-line);
+    --tw-prose-hr: var(--color-rule);
+    --tw-prose-quotes: var(--color-ink);
+    --tw-prose-quote-borders: var(--color-line);
+    --tw-prose-captions: var(--color-muted);
+    --tw-prose-code: var(--color-ink);
+    --tw-prose-pre-code: #e8ebff;
+    --tw-prose-pre-bg: var(--color-ink);
+    --tw-prose-th-borders: var(--color-ink);
+    --tw-prose-td-borders: var(--color-rule);
+    overflow-wrap: anywhere;
+  }
+  .markdown :where(h1, h2, h3) {
+    font-stretch: 112%;
+    font-weight: 750;
+    letter-spacing: -0.01em;
+  }
+  .markdown :where(a) {
+    text-underline-offset: 3px;
+    font-weight: 600;
+  }
+  .markdown :where(code):not(:where(pre *)) {
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+    background: var(--color-line-tint);
+    font-weight: 500;
+  }
+  .markdown :where(code)::before,
+  .markdown :where(code)::after {
+    content: none;
+  }
+  .markdown :where(pre) {
+    border-radius: var(--radius-sign);
+    overflow-x: auto;
+  }
+  .markdown :where(table) {
+    display: block;
+    overflow-x: auto;
+  }
+  .markdown :where(input[type="checkbox"]) {
+    margin-right: 0.5rem;
+    accent-color: var(--color-line);
+  }
+  /* Vídeo de YouTube responsivo 16:9. */
+  .markdown iframe {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    border: 0;
+    border-radius: var(--radius-sign);
+    background: var(--color-ink);
+  }
+  .markdown img {
+    border-radius: var(--radius-sign);
+  }
+}
+
+@layer utilities {
+  .wide {
+    font-stretch: 125%;
+  }
+  .skip-link {
+    position: absolute;
+    left: 1rem;
+    top: -4rem;
+    z-index: 100;
+    padding: 0.75rem 1rem;
+    background: var(--color-ink);
+    color: #fff;
+    font-weight: 700;
+    border-radius: var(--radius-sign);
+  }
+  .skip-link:focus {
+    top: 1rem;
+  }
+}
