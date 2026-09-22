@@ -157,6 +157,7 @@ deploy-verify:
 
 diagnose:
   stage: quality
+  timeout: 5m
   script:
     - cat /etc/os-release || true
     - echo "== curl/wget/tar =="; curl --version | head -1; wget --version | head -1; tar --version | head -1
