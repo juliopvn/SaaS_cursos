@@ -1,5 +1,11 @@
 # 🎓 SaaS de Cursos — Plataforma de contenidos formativos
 
+## 🌐 Demo / Despliegue
+
+**URL pública:** [https://cursos.jpavon-tech.com](https://cursos.jpavon-tech.com)
+
+CI/CD: GitLab CI (lint, typecheck, tests, E2E con Playwright) protege `main`; cada merge se despliega automáticamente vía mirror a GitHub → Vercel, verificado por un job post-deploy contra producción.
+
 ## 🎯 Objetivo del proyecto
 
 Construir una **plataforma de cursos online** con dos roles: el **admin** mantiene los cursos y el **student** consume el contenido y deja feedback.

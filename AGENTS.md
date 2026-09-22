@@ -10,7 +10,7 @@ Plataforma de cursos online con dos roles:
 - **student**: ve los cursos publicados, lee los recursos en orden (markdown con vídeos de YouTube) y deja feedback por recurso.
 
 Login por **magic link** (sin contraseñas). UI en español; código, rutas y colecciones en inglés.
-Estado: **Bloque A (local) completo**. El Bloque B (CI/CD y producción) sigue las fases P1–P6 de `PROMT.md`.
+Estado: **Bloques A y B completos**. En producción: [https://cursos.jpavon-tech.com](https://cursos.jpavon-tech.com).
 
 ## 2. Stack
 
@@ -109,7 +109,7 @@ magic_tokens { tokenHash, email, next?, expiresAt (TTL), usedAt? }   rate_limits
 ## 8. Testing
 
 - **Unit (Vitest)**: `tests/unit` — orden, slug, validadores, env, sesión/tokens, storage keys, guarda del seed, sanitizador Markdown.
-- **E2E (Playwright)**, `tests/e2e`: `globalSetup` ejecuta `seed --reset` sobre la BD **`saas-cursos-e2e`** (nunca la de desarrollo) y el servidor arranca con `MONGODB_DB` y `APP_URL` de E2E en `E2E_BASE_URL` (por defecto :3100). Local usa `next dev`; con `CI=1` usa `next start` (haz `npm run build` antes).
+- **E2E (Playwright)**, `tests/e2e`: `globalSetup` ejecuta `seed --reset` sobre la BD **`saas-cursos-e2e`** (nunca la de desarrollo) y el servidor arranca con `MONGODB_DB` y `APP_URL` de E2E en `E2E_BASE_URL` (por defecto :3100). Local usa `next dev`; en CI (`process.env.CI`, GitLab lo define solo) usa `next start` (haz `npm run build` antes).
 - El magic link se lee de la **API de MailHog** (`getMagicLink` en `helpers.ts`); `auth.setup.ts` guarda un `storageState` por rol (admin, student1, student2) en `tests/e2e/.auth/` (ignorado por git).
 - Proyectos: `chromium` (todo) y `smoke` (solo `@smoke`, solo lectura, apto para producción: no siembra ni levanta servidor si `E2E_BASE_URL` no es local).
 - Etiqueta `@storage`: requieren RustFS (S3). Para omitirlos: `npx playwright test --grep-invert @storage`.
@@ -124,11 +124,15 @@ hacer push; los merges requieren MR) — así solo código con CI en verde llega
 
 **Pipeline** (`.gitlab-ci.yml`), etapas `install → quality → build → e2e → deploy-verify`:
 
+- **Runner de este proyecto: `shell`, sin Docker** (confirmado en vivo: `image:` y `services:` se ignoran por completo). Todos los jobs llevan `tags: [cloudrun]` porque el único runner online no acepta jobs sin etiqueta (`run_untagged: false`).
 - `quality`: `lint`, `typecheck`, `unit-test` (Vitest) en paralelo; `audit` (`npm audit --omit=dev --audit-level=high`) con `allow_failure: true`.
 - `build`: `npm run build`; sube `.next/` como artefacto para el job `e2e`.
-- `e2e`: imagen `mcr.microsoft.com/playwright:v1.63.0-noble` (misma versión que `@playwright/test`); `services` `mongo:7`, `mailhog/mailhog`, `rustfs/rustfs:latest` (alias `mongo`/`mailhog`/`rustfs`); corre `npm run test:e2e` completo (incluye `@storage`) contra ese `.next` con `next start`; sube `playwright-report/` y `test-results/` como artefactos (`when: always`).
-- `deploy-verify` (**solo en `main`**): sondea `GET $PROD_URL/api/health` hasta que `commit === $CI_COMMIT_SHA` y `db === "ok"` (el mirror conserva el SHA), luego corre el proyecto `smoke` de Playwright contra `E2E_BASE_URL=$PROD_URL`. `PROD_URL` es una variable de CI **no secreta** (Settings → CI/CD → Variables), p. ej. `https://cursos.jpavon-tech.com`.
+- `e2e`: como no hay Docker, **autoaloja Mongo/MailHog/RustFS como binarios** descargados y arrancados con `nohup` en el propio job (tarballs/releases oficiales; sin `--fork` en mongod, se cuelga en este contenedor). Instala Chromium con `npx playwright install --with-deps` (tampoco viene de una imagen). Corre `npm run test:e2e` completo (incluye `@storage`); sube `playwright-report/` y `test-results/` como artefactos (`when: always`).
+  - **Gotcha real:** esta instancia de GitLab define una variable de CI **a nivel de instancia** `RUSTFS_ACCESS_KEY=minioadmin` (para prácticas con MinIO) que pisaba nuestras credenciales `rustfsadmin` declaradas en `variables:` — las de la UI ganan a las del YAML. Se corrige exportándolas explícitamente dentro del propio script, justo antes de arrancar RustFS.
+  - `expect.timeout` sube a 15s y `retries` a 2 solo en CI (`playwright.config.ts`): Mongo+MailHog+RustFS+Chromium+Next comparten el mismo runner efímero y, bajo carga, un `router.refresh()` puede tardar más que en local.
+- `deploy-verify` (**solo en `main`**): sondea `GET $PROD_URL/api/health` hasta que `commit === $CI_COMMIT_SHA` y `db === "ok"` (el mirror conserva el SHA), luego corre el proyecto `smoke` de Playwright contra `E2E_BASE_URL=$PROD_URL`. `PROD_URL` es una variable de CI **no secreta** (Settings → CI/CD → Variables), p. ej. `https://cursos.jpavon-tech.com`. Verificado en producción: los 5 tests `@smoke` pasan.
 - Todas las credenciales del pipeline son **ficticias** (Mongo/MailHog/RustFS efímeros de CI); no hace falta ningún secreto real para que pase.
+- Este runner compartido puede encolar jobs varios minutos (contención con otros proyectos de la academia); no es un fallo del pipeline.
 - Si `deploy-verify` falla, el pipeline de `main` queda en rojo y GitLab lo notifica. **Rollback:** en Vercel → *Instant Rollback* al deploy anterior, y después revertir el commit correspondiente en GitLab (`git revert`) para que el historial no vuelva a desplegar el commit roto.
 
 **Mirror y despliegue:** GitLab (fuente de verdad) → *push mirroring* (solo `main`) → GitHub → Vercel (Git integration, Node 22, rama de producción `main`). **No se despliega con Vercel CLI desde el pipeline.** Vercel construye en cada push al mirror sin conocer el estado del pipeline de GitLab: la única garantía de calidad es la protección de `main` de más arriba.
