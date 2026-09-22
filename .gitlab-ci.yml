@@ -43,6 +43,9 @@ variables:
 
 default:
   image: node:22-bookworm-slim
+  # Runner compartido de este proyecto: solo recoge jobs con esta etiqueta.
+  tags:
+    - cloudrun
   cache:
     key:
       files: [package-lock.json]
