@@ -1,11 +1,5 @@
 # 🎓 SaaS de Cursos — Plataforma de contenidos formativos
 
-## 🌐 Demo / Despliegue
-
-**URL pública:** [https://cursos.jpavon-tech.com](https://cursos.jpavon-tech.com)
-
-CI/CD: GitLab CI (lint, typecheck, tests, E2E con Playwright) protege `main`; cada merge se despliega automáticamente vía mirror a GitHub → Vercel, verificado por un job post-deploy contra producción.
-
 ## 🎯 Objetivo del proyecto
 
 Construir una **plataforma de cursos online** con dos roles: el **admin** mantiene los cursos y el **student** consume el contenido y deja feedback.
@@ -78,6 +72,21 @@ npm run dev
 ```
 
 4. Entra en [http://localhost:3000](http://localhost:3000) con el email del admin del seed; el magic link aparece en [http://localhost:8025](http://localhost:8025).
+
+## 🌐 Demo / Despliegue
+
+**URL pública:** [https://cursos.jpavon-tech.com](https://cursos.jpavon-tech.com)
+
+CI/CD: GitLab CI (lint, typecheck, tests, E2E con Playwright) protege `main`; cada merge se despliega automáticamente vía mirror a GitHub → Vercel, verificado por un job post-deploy contra producción.
+
+### Servicios en producción
+
+| Servicio | Uso |
+|---|---|
+| **Vercel** | Hosting del frontend y las API Routes de Next.js; despliega en cada push a `main` vía el mirror desde GitHub. |
+| **MongoDB Atlas** | Base de datos `saas-cursos` (sustituye al Mongo local de desarrollo). |
+| **Cloudflare R2** | Almacenamiento S3-compatible de los ficheros (PDF/imágenes) que sube el admin (sustituye a RustFS). |
+| **Resend** | Envío de los magic links de acceso por email, sobre el dominio verificado `mail.jpavon-tech.com` (sustituye a MailHog). |
 
 <!-- BEGIN cc:que-se-valora -->
 ¡Hola! Aquí te explico qué es lo que miraremos con lupa cuando corrijamos tu proyecto "Saas Cursos".
